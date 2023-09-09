@@ -24,15 +24,20 @@ public class Expense {
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Expense() {
     }
 
-    public Expense(Long id, double amount, String description, LocalDate date, Category category) {
+    public Expense(Long id, double amount, String description, LocalDate date, Category category, User user) {
         this.id = id;
         this.amount = amount;
         this.description = description;
         this.date = date;
         this.category = category;
+        this.user = user;
     }
 
     public Long getId() {
@@ -74,5 +79,14 @@ public class Expense {
     public void setCategory(Category category) {
         this.category = category;
     }
-    
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+   
 }
