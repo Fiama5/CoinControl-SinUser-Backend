@@ -14,10 +14,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.persistence.EntityNotFoundException;
 import tup.CoinControlSinUserBackend.model.Expense;
+import tup.CoinControlSinUserBackend.model.Funds;
 import tup.CoinControlSinUserBackend.repository.ExpenseRepository;
+import tup.CoinControlSinUserBackend.repository.FundsRepository;
 
 @RestController
 @RequestMapping("/expense")
@@ -25,11 +29,13 @@ import tup.CoinControlSinUserBackend.repository.ExpenseRepository;
 public class ExpenseController {
 
     private final ExpenseRepository expenseRepository;
+    private final FundsRepository fundsRepository;
 
-    @Autowired
-    public ExpenseController(ExpenseRepository expenseRepository) {
-
+  
+@Autowired
+    public ExpenseController(ExpenseRepository expenseRepository, FundsRepository fundsRepository) {
         this.expenseRepository = expenseRepository;
+        this.fundsRepository = fundsRepository;
     }
 
     // Endpoint para obtener todos los gastos
@@ -76,10 +82,25 @@ public class ExpenseController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Expense> createExpense(@RequestBody Expense expense) {
+    public ResponseEntity<Expense> createExpense(@RequestBody Expense expense, @RequestParam("fundsId") Long fundsId) {
+        // Obtener el fondo seleccionado
+        Funds funds = fundsRepository.findById(fundsId)
+                .orElseThrow(() -> new EntityNotFoundException("Funds not found with id: " + fundsId));
+    
+        // Asociar el gasto con el fondo
+        expense.setFunds(funds);
+    
+        // Restar el monto del gasto de los fondos disponibles
+        double newFundsAmount = funds.getAmount() - expense.getAmount();
+        funds.setAmount(newFundsAmount);
+    
+        // Guardar el gasto y actualizar los fondos disponibles
         Expense savedExpense = expenseRepository.save(expense);
+        fundsRepository.save(funds);
+    
         return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
     }
+    
 
     // Endpoint para obtener los gastos de un usuario y una categoría específicos
     @GetMapping("/find/user/{userId}/category/{categoryId}")

@@ -1,7 +1,5 @@
 package tup.CoinControlSinUserBackend.model;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,40 +8,26 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 
 @Entity
-public class Expense {
+public class Funds {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
 
     private double amount;
     private String description;
-    private LocalDate date;
-
-    @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-@JoinColumn(name = "funds_id")
-private Funds funds;
-
-    public Expense() {
+    public Funds() {
     }
 
-    public Expense(Long id, double amount, String description, LocalDate date, Category category, User user,
-            Funds funds) {
+    public Funds(Long id, double amount, String description, User user) {
         this.id = id;
         this.amount = amount;
         this.description = description;
-        this.date = date;
-        this.category = category;
         this.user = user;
-        this.funds = funds;
     }
 
     public Long getId() {
@@ -70,22 +54,6 @@ private Funds funds;
         this.description = description;
     }
 
-    public LocalDate getDate() {
-        return date;
-    }
-
-    public void setDate(LocalDate date) {
-        this.date = date;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
     public User getUser() {
         return user;
     }
@@ -93,17 +61,4 @@ private Funds funds;
     public void setUser(User user) {
         this.user = user;
     }
-
-    public Funds getFunds() {
-        return funds;
-    }
-
-    public void setFunds(Funds funds) {
-        this.funds = funds;
-    }
-
-
-   
-
-   
 }
