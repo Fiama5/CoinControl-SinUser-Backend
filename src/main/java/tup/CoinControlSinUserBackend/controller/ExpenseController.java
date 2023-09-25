@@ -3,7 +3,6 @@ package tup.CoinControlSinUserBackend.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -31,8 +30,7 @@ public class ExpenseController {
     private final ExpenseRepository expenseRepository;
     private final FundsRepository fundsRepository;
 
-  
-@Autowired
+
     public ExpenseController(ExpenseRepository expenseRepository, FundsRepository fundsRepository) {
         this.expenseRepository = expenseRepository;
         this.fundsRepository = fundsRepository;
@@ -69,38 +67,60 @@ public class ExpenseController {
         }
     }
 
-    // Endpoint para eliminar un gasto por ID
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
-        Optional<Expense> expense = expenseRepository.findById(id);
-        if (expense.isPresent()) {
-            expenseRepository.deleteById(id);
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+    // Endpoint para eliminar un gasto por ID y actualiza los fondos devolviendo el
+    // dinero gastado
+    @DeleteMapping("/delete/{expenseId}")
+    public ResponseEntity<Funds> deleteExpense(@PathVariable Long expenseId) {
+        // Obtén el gasto que se va a eliminar
+        Expense expense = expenseRepository.findById(expenseId)
+                .orElseThrow(() -> new EntityNotFoundException("Expense not found with id: " + expenseId));
+
+        // Obtén el ID del fondo asociado al gasto
+        Long fundsId = expense.getFunds().getId();
+
+        // Elimina el gasto de la base de datos
+        expenseRepository.delete(expense);
+
+        // Actualiza los fondos relacionados con el ID del fondo obtenido
+        Funds funds = fundsRepository.findById(fundsId)
+                // Manejo de errores
+                .orElseThrow(() -> new EntityNotFoundException("Funds not found with id: " + fundsId));
+
+        // Restaura el monto de los fondos eliminados por este gasto
+        double newFundsAmount = funds.getAmount() + expense.getAmount();
+        // Se actualiza el monto de fondos disponibles en el objeto Funds con el nuevo
+        // valor
+        funds.setAmount(newFundsAmount);
+        // Actualiza el fondo en la base de datos
+        fundsRepository.save(funds);
+
+        // Devuelve los fondos actualizados después de eliminar el gasto
+        return ResponseEntity.ok(funds);
     }
 
+    // Agregar un gasto nuevo
     @PostMapping("/add")
     public ResponseEntity<Expense> createExpense(@RequestBody Expense expense, @RequestParam("fundsId") Long fundsId) {
         // Obtener el fondo seleccionado
         Funds funds = fundsRepository.findById(fundsId)
+                // Manejo de error
                 .orElseThrow(() -> new EntityNotFoundException("Funds not found with id: " + fundsId));
-    
+
         // Asociar el gasto con el fondo
         expense.setFunds(funds);
-    
+
         // Restar el monto del gasto de los fondos disponibles
         double newFundsAmount = funds.getAmount() - expense.getAmount();
+        // Se actualiza el monto de fondos disponibles en el objeto Funds con el nuevo
+        // valor
         funds.setAmount(newFundsAmount);
-    
+
         // Guardar el gasto y actualizar los fondos disponibles
         Expense savedExpense = expenseRepository.save(expense);
         fundsRepository.save(funds);
-    
+
         return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
     }
-    
 
     // Endpoint para obtener los gastos de un usuario y una categoría específicos
     @GetMapping("/find/user/{userId}/category/{categoryId}")
