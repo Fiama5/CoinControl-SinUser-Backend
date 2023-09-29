@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
+
 import tup.CoinControlSinUserBackend.model.Category;
 import tup.CoinControlSinUserBackend.repository.CategoryRepository;
 
@@ -53,6 +53,11 @@ public class CategoryInitializer implements CommandLineRunner{
         Category category8 = new Category();
         category8.setName("Ropa y Artículos Personales");
         categoryRepository.save(category8);
+
+        Category category9= new Category();
+        category9.setName("Otros");
+        categoryRepository.save(category9);
+
                 System.out.println("Categorías creadas y guardadas en la base de datos.");
         } else {
             System.out.println("Las categorías ya existen en la base de datos. No se crearon nuevamente.");
