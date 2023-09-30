@@ -32,9 +32,28 @@ public class FundsController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<Funds> createFunds(@RequestBody Funds funds) {
-        Funds savedFunds = fundsRepository.save(funds);
-        return new ResponseEntity<Funds>(savedFunds, HttpStatus.CREATED);
+    public ResponseEntity<Funds> createOrUpdateFunds(@RequestBody Funds funds) {
+        // Buscar el fondo existente para el usuario y el predefinedFund
+        // Se utiliza el objeto fundsRepository para buscar en la base de datos si ya
+        // existe un registro de fundsUser y el PredefinedFund
+        // especificados en el objeto funds recibido en la solicitud.
+        Funds existingFunds = fundsRepository.findByUserAndPredefinedFund(funds.getUser(), funds.getPredefinedFund());
+
+        if (existingFunds != null) {
+            // Si existingFunds no es nulo, siginifica que se encontro un registro en
+            // fundsRepository
+            // Si existe, actualizo el monto
+            existingFunds.setAmount(existingFunds.getAmount() + funds.getAmount());
+            // Se actualiza el monto existente sumándole el monto del objeto funds recibido
+            // en la solicitud.
+            Funds updatedFunds = fundsRepository.save(existingFunds);
+            // Se guarda el monto en los fondos existentes
+            return new ResponseEntity<>(updatedFunds, HttpStatus.OK);
+        } else {
+            // Si no existe, se crea un nuevo registo
+            Funds savedFunds = fundsRepository.save(funds);
+            return new ResponseEntity<>(savedFunds, HttpStatus.CREATED);
+        }
     }
 
     // Traer todos los fondos
