@@ -14,7 +14,10 @@ public class Funds {
     private Long id;
 
     private double amount;
-    private String description;
+
+    @ManyToOne
+    @JoinColumn(name = "predefined_fund_id")
+    private PredefinedFund predefinedFund;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -23,10 +26,10 @@ public class Funds {
     public Funds() {
     }
 
-    public Funds(Long id, double amount, String description, User user) {
+    public Funds(Long id, double amount, PredefinedFund predefinedFund, User user) {
         this.id = id;
         this.amount = amount;
-        this.description = description;
+        this.predefinedFund = predefinedFund;
         this.user = user;
     }
 
@@ -46,12 +49,12 @@ public class Funds {
         this.amount = amount;
     }
 
-    public String getDescription() {
-        return description;
+    public PredefinedFund getPredefinedFund() {
+        return predefinedFund;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setPredefinedFund(PredefinedFund predefinedFund) {
+        this.predefinedFund = predefinedFund;
     }
 
     public User getUser() {
@@ -61,4 +64,6 @@ public class Funds {
     public void setUser(User user) {
         this.user = user;
     }
+
+   
 }

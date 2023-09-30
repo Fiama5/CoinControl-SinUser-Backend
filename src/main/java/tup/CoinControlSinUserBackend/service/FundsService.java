@@ -22,4 +22,8 @@ public class FundsService {
         return fundsRepository.findAll();
     }
 
+    public List<Funds> getFundsByUser (Long userId){
+        return fundsRepository.findByUserId(userId);
+    }
+
 }

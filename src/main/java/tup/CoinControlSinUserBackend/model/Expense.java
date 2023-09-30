@@ -14,7 +14,6 @@ public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
 
     private double amount;
     private String description;
@@ -29,8 +28,8 @@ public class Expense {
     private User user;
 
     @ManyToOne
-@JoinColumn(name = "funds_id")
-private Funds funds;
+    @JoinColumn(name = "funds_id")
+    private Funds funds;
 
     public Expense() {
     }
@@ -102,8 +101,4 @@ private Funds funds;
         this.funds = funds;
     }
 
-
-   
-
-   
 }

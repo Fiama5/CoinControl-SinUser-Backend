@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -100,27 +99,31 @@ public class ExpenseController {
 
     // Agregar un gasto nuevo
     @PostMapping("/add")
-    public ResponseEntity<Expense> createExpense(@RequestBody Expense expense, @RequestParam("fundsId") Long fundsId) {
-        // Obtener el fondo seleccionado
-        Funds funds = fundsRepository.findById(fundsId)
-                // Manejo de error
-                .orElseThrow(() -> new EntityNotFoundException("Funds not found with id: " + fundsId));
-
-        // Asociar el gasto con el fondo
-        expense.setFunds(funds);
-
-        // Restar el monto del gasto de los fondos disponibles
-        double newFundsAmount = funds.getAmount() - expense.getAmount();
-        // Se actualiza el monto de fondos disponibles en el objeto Funds con el nuevo
-        // valor
-        funds.setAmount(newFundsAmount);
-
-        // Guardar el gasto y actualizar los fondos disponibles
-        Expense savedExpense = expenseRepository.save(expense);
-        fundsRepository.save(funds);
-
-        return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
+    public ResponseEntity<Expense> createExpense(@RequestBody Expense expense) {
+        try {
+            // Obtener el fondo seleccionado
+            Funds funds = fundsRepository.findById(expense.getFunds().getId())
+                    .orElseThrow(() -> new EntityNotFoundException("Funds not found with id: " + expense.getFunds().getId()));
+    
+            // Asociar el gasto con el fondo
+            expense.setFunds(funds);
+    
+            // Restar el monto del gasto de los fondos disponibles
+            double newFundsAmount = funds.getAmount() - expense.getAmount();
+            // Se actualiza el monto de fondos disponibles en el objeto Funds con el nuevo valor
+            funds.setAmount(newFundsAmount);
+    
+            // Guardar el gasto y actualizar los fondos disponibles
+            Expense savedExpense = expenseRepository.save(expense);
+            fundsRepository.save(funds);
+    
+            return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
+        } catch (Exception e) {
+            // Manejo de excepciones
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
+    
 
     // Endpoint para obtener los gastos de un usuario y una categoría específicos
     @GetMapping("/find/user/{userId}/category/{categoryId}")
