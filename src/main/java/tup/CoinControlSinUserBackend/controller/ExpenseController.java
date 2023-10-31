@@ -1,6 +1,8 @@
 package tup.CoinControlSinUserBackend.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -28,7 +31,6 @@ public class ExpenseController {
 
     private final ExpenseRepository expenseRepository;
     private final FundsRepository fundsRepository;
-
 
     public ExpenseController(ExpenseRepository expenseRepository, FundsRepository fundsRepository) {
         this.expenseRepository = expenseRepository;
@@ -103,27 +105,28 @@ public class ExpenseController {
         try {
             // Obtener el fondo seleccionado
             Funds funds = fundsRepository.findById(expense.getFunds().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Funds not found with id: " + expense.getFunds().getId()));
-    
+                    .orElseThrow(() -> new EntityNotFoundException(
+                            "Funds not found with id: " + expense.getFunds().getId()));
+
             // Asociar el gasto con el fondo
             expense.setFunds(funds);
-    
+
             // Restar el monto del gasto de los fondos disponibles
             double newFundsAmount = funds.getAmount() - expense.getAmount();
-            // Se actualiza el monto de fondos disponibles en el objeto Funds con el nuevo valor
+            // Se actualiza el monto de fondos disponibles en el objeto Funds con el nuevo
+            // valor
             funds.setAmount(newFundsAmount);
-    
+
             // Guardar el gasto y actualizar los fondos disponibles
             Expense savedExpense = expenseRepository.save(expense);
             fundsRepository.save(funds);
-    
+
             return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
         } catch (Exception e) {
             // Manejo de excepciones
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
 
     // Endpoint para obtener los gastos de un usuario y una categoría específicos
     @GetMapping("/find/user/{userId}/category/{categoryId}")
@@ -133,5 +136,25 @@ public class ExpenseController {
         List<Expense> expenses = expenseRepository.findByUserIdAndCategoryId(userId, categoryId);
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
+
+@GetMapping("/sum-by-category")
+public ResponseEntity<Map<String, Double>> getSumOfExpensesByCategory(@RequestParam("userID") Long userID) {
+    // El parámetro userID se puede acceder en la lógica del método para usarlo en la obtención de gastos.
+
+    // Lógica para obtener gastos por categoría para el userID proporcionado
+    List<Object[]> expensesSumByCategory = expenseRepository.sumOfExpensesByCategoryForUser(userID);
+    // Se asume que expenseRepository tiene un método sumOfExpensesByCategoryForUser que toma userID como parámetro y devuelve la lista de gastos por categoría.
+
+    // Mapear los resultados a un mapa de categoría a total gastado
+    Map<String, Double> categoryExpenses = new HashMap<>();
+    for (Object[] result : expensesSumByCategory) {
+        String category = (String) result[0];
+        Double sum = (Double) result[1];
+        categoryExpenses.put(category, sum);
+    }
+
+    return new ResponseEntity<>(categoryExpenses, HttpStatus.OK);
+}
+
 
 }
