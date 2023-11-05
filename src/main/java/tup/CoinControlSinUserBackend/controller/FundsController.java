@@ -56,17 +56,24 @@ public class FundsController {
         }
     }
 
-    // Traer todos los fondos
+    // Endpoint para obtener todos los fondos
     @GetMapping("/all")
     public ResponseEntity<List<Funds>> getAllFunds() {
+        // Obtiene todos los fondos a través del servicio de fondos
         List<Funds> funds = fundsService.findAllFunds();
+
+        // Retorna una respuesta con la lista de todos los fondos
         return new ResponseEntity<>(funds, HttpStatus.OK);
     }
 
+    // Endpoint para encontrar fondos por ID de usuario
     @GetMapping("/find/user/{userId}")
-    public ResponseEntity<List<Funds>> getFundsByUser(
-            @PathVariable Long userId) {
+    public ResponseEntity<List<Funds>> getFundsByUser(@PathVariable Long userId) {
+        // Busca los fondos en el repositorio según el ID de usuario proporcionado
         List<Funds> funds = fundsRepository.findByUserId(userId);
+
+        // Retorna una respuesta con la lista de fondos asociados al usuario y el código
+        // de estado HTTP OK (200)
         return new ResponseEntity<>(funds, HttpStatus.OK);
     }
 

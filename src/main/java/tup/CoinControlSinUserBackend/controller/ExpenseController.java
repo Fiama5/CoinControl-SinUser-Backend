@@ -40,17 +40,26 @@ public class ExpenseController {
     // Endpoint para obtener todos los gastos
     @GetMapping("/all")
     public ResponseEntity<List<Expense>> getAllExpenses() {
+        // Obtiene todos los gastos del repositorio
         List<Expense> expenses = expenseRepository.findAll();
+
+        // Retorna una respuesta con la lista de todos los gastos
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
     // Endpoint para obtener un gasto por ID
     @GetMapping("/find/{id}")
     public ResponseEntity<Expense> getExpenseById(@PathVariable Long id) {
+        // Busca el gasto por el ID proporcionado
         Optional<Expense> expense = expenseRepository.findById(id);
+
+        // Verifica si el gasto fue encontrado en el repositorio
         if (expense.isPresent()) {
+            // Si el gasto se encuentra, retorna una respuesta con el gasto
             return new ResponseEntity<>(expense.get(), HttpStatus.OK);
         } else {
+            // Si el gasto no se encuentra, retorna una respuesta con el código de estado
+            // HTTP NOT FOUND (404)
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
@@ -58,13 +67,16 @@ public class ExpenseController {
     // Endpoint para actualizar un gasto por ID
     @PutMapping("/update/{id}")
     public ResponseEntity<Expense> updateExpense(@PathVariable Long id, @RequestBody Expense updatedExpense) {
+        // Busca el gasto existente por el ID proporcionado
         Optional<Expense> existingExpense = expenseRepository.findById(id);
+
+        // Verifica si el gasto existente fue encontrado en el repositorio
         if (existingExpense.isPresent()) {
-            updatedExpense.setId(id); // Asegúrate de que el ID coincida
-            Expense savedExpense = expenseRepository.save(updatedExpense);
-            return new ResponseEntity<>(savedExpense, HttpStatus.OK);
+            updatedExpense.setId(id); // Asegura que el ID del gasto actualizado coincida con el ID proporcionado
+            Expense savedExpense = expenseRepository.save(updatedExpense); // Actualiza el gasto en la base de datos
+            return new ResponseEntity<>(savedExpense, HttpStatus.OK); // Retorna el gasto actualizado
         } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND); // Retorna el código de estado
         }
     }
 
@@ -137,24 +149,25 @@ public class ExpenseController {
         return new ResponseEntity<>(expenses, HttpStatus.OK);
     }
 
-@GetMapping("/sum-by-category")
-public ResponseEntity<Map<String, Double>> getSumOfExpensesByCategory(@RequestParam("userID") Long userID) {
-    // El parámetro userID se puede acceder en la lógica del método para usarlo en la obtención de gastos.
+    @GetMapping("/sum-by-category")
+    public ResponseEntity<Map<String, Double>> getSumOfExpensesByCategory(@RequestParam("userID") Long userID) {
+        // El parámetro userID se puede acceder en la lógica del método para usarlo en
+        // la obtención de gastos.
 
-    // Lógica para obtener gastos por categoría para el userID proporcionado
-    List<Object[]> expensesSumByCategory = expenseRepository.sumOfExpensesByCategoryForUser(userID);
-    // Se asume que expenseRepository tiene un método sumOfExpensesByCategoryForUser que toma userID como parámetro y devuelve la lista de gastos por categoría.
+        // Lógica para obtener gastos por categoría para el userID proporcionado
+        List<Object[]> expensesSumByCategory = expenseRepository.sumOfExpensesByCategoryForUser(userID);
+        // Se asume que expenseRepository tiene un método sumOfExpensesByCategoryForUser
+        // que toma userID como parámetro y devuelve la lista de gastos por categoría.
 
-    // Mapear los resultados a un mapa de categoría a total gastado
-    Map<String, Double> categoryExpenses = new HashMap<>();
-    for (Object[] result : expensesSumByCategory) {
-        String category = (String) result[0];
-        Double sum = (Double) result[1];
-        categoryExpenses.put(category, sum);
+        // Mapear los resultados a un mapa de categoría a total gastado
+        Map<String, Double> categoryExpenses = new HashMap<>();
+        for (Object[] result : expensesSumByCategory) {
+            String category = (String) result[0];
+            Double sum = (Double) result[1];
+            categoryExpenses.put(category, sum);
+        }
+
+        return new ResponseEntity<>(categoryExpenses, HttpStatus.OK);
     }
-
-    return new ResponseEntity<>(categoryExpenses, HttpStatus.OK);
-}
-
 
 }

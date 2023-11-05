@@ -22,10 +22,15 @@ public class PredefinedFundController {
         this.predefinedFundService = predefinedFundService;
     }
 
-
+    // Endpoint para obtener todos los fondos predefinidos
     @GetMapping("/all")
-    public ResponseEntity<List<PredefinedFund>> getAllPredefinedFund(){
+    public ResponseEntity<List<PredefinedFund>> getAllPredefinedFund() {
+        // Obtiene todos los fondos predefinidos a través del servicio de fondos
+        // predefinidos
         List<PredefinedFund> predefinedFunds = predefinedFundService.findAllPredefinedFund();
+
+        // Retorna una respuesta con la lista de todos los fondos predefinidos
         return new ResponseEntity<>(predefinedFunds, HttpStatus.OK);
     }
+
 }

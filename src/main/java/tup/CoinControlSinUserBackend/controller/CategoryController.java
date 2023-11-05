@@ -33,39 +33,50 @@ public class CategoryController {
     // Traer todas las categorías
     @GetMapping("/all")
     public ResponseEntity<List<Category>> getAllCategories() {
+        // Llama al servicio para obtener todas las categorías
         List<Category> categories = categoryService.findAllCategories();
+
+        // Devuelve una respuesta con la lista de categorías obtenidas
         return new ResponseEntity<>(categories, HttpStatus.OK);
     }
 
     // Traer categoría por id
     @GetMapping("/find/{id}")
     public ResponseEntity<Category> getCategoryById(@PathVariable("id") Long id) {
+        // Obtiene la categoría utilizando el ID proporcionado
         Category category = categoryService.findCategoryById(id);
+
+        // Retorna una respuesta con la categoría encontrada
         return new ResponseEntity<>(category, HttpStatus.OK);
     }
 
-    /* Metodos no utilizados
-    // Crear nueva categoría
-    @PostMapping("/add")
-    public ResponseEntity<Category> addCategory(@RequestBody Category category) {
-        Category newCategory = categoryService.addCategory(category);
-        return new ResponseEntity<>(newCategory, HttpStatus.CREATED);
-    }
-
-    // Actualizar categoría
-    @PutMapping("/update")
-    public ResponseEntity<Category> updateCategory(@RequestBody Category category) {
-        Category updatedCategory = categoryService.updateCategory(category);
-        return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
-    }
-
-    // Eliminar una categoría
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id) {
-        categoryService.deleteCategory(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    */
+    /*
+     * Metodos no utilizados
+     * // Crear nueva categoría
+     * 
+     * @PostMapping("/add")
+     * public ResponseEntity<Category> addCategory(@RequestBody Category category) {
+     * Category newCategory = categoryService.addCategory(category);
+     * return new ResponseEntity<>(newCategory, HttpStatus.CREATED);
+     * }
+     * 
+     * // Actualizar categoría
+     * 
+     * @PutMapping("/update")
+     * public ResponseEntity<Category> updateCategory(@RequestBody Category
+     * category) {
+     * Category updatedCategory = categoryService.updateCategory(category);
+     * return new ResponseEntity<>(updatedCategory, HttpStatus.OK);
+     * }
+     * 
+     * // Eliminar una categoría
+     * 
+     * @DeleteMapping("/delete/{id}")
+     * public ResponseEntity<?> deleteCategory(@PathVariable("id") Long id) {
+     * categoryService.deleteCategory(id);
+     * return new ResponseEntity<>(HttpStatus.OK);
+     * }
+     * 
+     */
 
 }
