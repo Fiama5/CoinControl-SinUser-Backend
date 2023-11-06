@@ -23,6 +23,7 @@ import tup.CoinControlSinUserBackend.model.Expense;
 import tup.CoinControlSinUserBackend.model.Funds;
 import tup.CoinControlSinUserBackend.repository.ExpenseRepository;
 import tup.CoinControlSinUserBackend.repository.FundsRepository;
+import tup.CoinControlSinUserBackend.service.ExpenseService;
 
 @RestController
 @RequestMapping("/expense")
@@ -31,10 +32,13 @@ public class ExpenseController {
 
     private final ExpenseRepository expenseRepository;
     private final FundsRepository fundsRepository;
+    private final ExpenseService expenseService;
 
-    public ExpenseController(ExpenseRepository expenseRepository, FundsRepository fundsRepository) {
+    public ExpenseController(ExpenseRepository expenseRepository, FundsRepository fundsRepository,
+            ExpenseService expenseService) {
         this.expenseRepository = expenseRepository;
         this.fundsRepository = fundsRepository;
+        this.expenseService = expenseService;
     }
 
     // Endpoint para obtener todos los gastos
@@ -113,14 +117,20 @@ public class ExpenseController {
 
     // Agregar un gasto nuevo
     @PostMapping("/add")
+    // Este metodo recibe un objeto Expense en el cuerpo de la solicitud
+    // (RequestBody) y devuelve un ResponseEntity, que es una respuesta HTTP.
     public ResponseEntity<Expense> createExpense(@RequestBody Expense expense) {
         try {
-            // Obtener el fondo seleccionado
+            // Obtener el fondo relacionado con el gasto seleccionado.
+            // Se busca en el repositorio de fondos utilizando el fundsid que esta asociado
+            // al gasto
             Funds funds = fundsRepository.findById(expense.getFunds().getId())
+                    // En todo caso de que no se logre encontrar el fondo con el gasto asociado
+                    // Se lanza una excepion del tipo EntityNotFoundException
                     .orElseThrow(() -> new EntityNotFoundException(
                             "Funds not found with id: " + expense.getFunds().getId()));
 
-            // Asociar el gasto con el fondo
+            // Asociar el gasto con el fondo recuperado de fundsRepository
             expense.setFunds(funds);
 
             // Restar el monto del gasto de los fondos disponibles
@@ -132,7 +142,7 @@ public class ExpenseController {
             // Guardar el gasto y actualizar los fondos disponibles
             Expense savedExpense = expenseRepository.save(expense);
             fundsRepository.save(funds);
-
+            // Devuelve el gasto creado y la respuesta http
             return new ResponseEntity<>(savedExpense, HttpStatus.CREATED);
         } catch (Exception e) {
             // Manejo de excepciones
@@ -170,4 +180,27 @@ public class ExpenseController {
         return new ResponseEntity<>(categoryExpenses, HttpStatus.OK);
     }
 
+    // Metodos aun no integrados en angular
+
+    // Controller para obtener los gastos de un usuario y una categoria especificos
+    // de los ultimos 15 dias
+    @GetMapping("/last15days")
+    // Se crea un metodo que desea obtener una lista de gastos
+    public List<Expense> getExpensesLast15Days(
+            // Recibe dos parametros, un userIdd y un categoryId
+            @RequestParam Long userId,
+            @RequestParam Long categoryId) {
+        // Retorna el metodo getExpensesLast15Days, pasandole por parametros el userId y
+        // categoryId al servicio
+        return expenseService.getExpensesLast15Days(userId, categoryId);
+    }
+
+    // Mismo controller que "/last15days", a diferencia de que usa otro metodo para
+    // que sean 30 dias en vez de 15
+    @GetMapping("/last30days")
+    public List<Expense> getExpensesLast30Days(
+            @RequestParam Long userId,
+            @RequestParam Long categoryId) {
+        return expenseService.getExpensesLast30Days(userId, categoryId);
+    }
 }

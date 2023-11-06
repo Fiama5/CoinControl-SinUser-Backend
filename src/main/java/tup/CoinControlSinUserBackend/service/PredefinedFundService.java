@@ -17,6 +17,8 @@ public class PredefinedFundService {
         this.predefinedFundRepository = predefinedFundRepository;
     }
 
+    //Funcion que retorna todos los fondos predefinidos
+    //Crea una lista de fondos predefinidos y utiliza el metodo findall para traer a todos
     public List<PredefinedFund> findAllPredefinedFund(){
         return predefinedFundRepository.findAll();
     }

@@ -17,12 +17,17 @@ public class FundsService {
         this.fundsRepository = fundsRepository;
     }
 
-    //Mostrar todos los fondos
-    public List<Funds> findAllFunds(){
+    // Mostrar todos los fondos
+    public List<Funds> findAllFunds() {
         return fundsRepository.findAll();
     }
 
-    public List<Funds> getFundsByUser (Long userId){
+    // Mostrar fondos por id de usuario
+    // Devuelve una lista de fondos(Funds) y recibe por parametro un user id que va
+    // a buscar los fondos de ese user id
+    public List<Funds> getFundsByUser(Long userId) {
+        // Se llama al metodo findByUserId que busca en la fuente de datos todos los
+        // fondos relacionados con el userId proporcionado.
         return fundsRepository.findByUserId(userId);
     }
 

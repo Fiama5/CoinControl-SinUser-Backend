@@ -11,22 +11,29 @@ import tup.CoinControlSinUserBackend.service.NotFoundException.UserNotFoundExcep
 
 @Service
 public class UserService {
-        private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-
-@Autowired
+    @Autowired
     public UserService(UserRepository userRepository) {
-            this.userRepository = userRepository;
-        }
+        this.userRepository = userRepository;
+    }
 
+    // Metodo para crear un nuevo usuario
+    // Toma un parametro de tipo user y devulve un User
     public User addUser(User user) {
+        // Utilizamos el repositorio para llamar el metodo save, toma el objeto user
+        // pasado por parametro y lo guarda en la base de datos
         return userRepository.save(user);
     }
 
+    // Metodo para obtener todos los usuarios
+    // Devulve una lista de tipo usuario
     public List<User> findAllUsers() {
+        // Se utiliza el metodo findAll para obtener todos los User
         return userRepository.findAll();
     }
 
+    // Metodo para actualizar un usuario
     public User updateUser(User user) {
         return userRepository.save(user);
         // toma un argumento de tipo User (el cual es el usuario que se quiere
@@ -41,12 +48,19 @@ public class UserService {
 
     }
 
+    // Metodo para buscar un Usuario por ID
+    // Toma un parametro por id que es el usuario que se desea buscar
+    // El metodo devuelve un objeto de tipo User
     public User findUserById(Long id) {
+        // Se llama al repostirio para usar el metodo y se le pasa por parametros el id
         return userRepository.findUserById(id)
                 .orElseThrow(() -> new UserNotFoundException("User by id" + id + "was not found"));
     }
 
+    // Metodo para eliminar un usuario por Id
+    // Este metodo no devuelve nada y toma un parametro por id
     public void deleteUser(Long id) {
+        // Se llama a el repositorio para usar el metodo para eliminar un usuario
         userRepository.deleteUserById(id);
     }
 }
