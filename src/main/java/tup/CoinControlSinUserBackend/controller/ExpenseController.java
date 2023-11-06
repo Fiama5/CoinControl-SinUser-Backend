@@ -171,12 +171,17 @@ public class ExpenseController {
 
         // Mapear los resultados a un mapa de categoría a total gastado
         Map<String, Double> categoryExpenses = new HashMap<>();
+        // Se recorren los resultados obtenidos (presumiblemente cada fila de datos
+        // obtenida de la base de datos) y se asignan a un Map<String, Double>. Cada
+        // categoría se convierte en la clave del mapa y el valor asociado es el total
+        // de gastos para esa categoría.
         for (Object[] result : expensesSumByCategory) {
             String category = (String) result[0];
             Double sum = (Double) result[1];
             categoryExpenses.put(category, sum);
         }
-
+        // Se devuelve un objeto ResponseEntity que contiene el Map de totales de gastos
+        // por categoría para el usuario con el código de estado HTTP OK
         return new ResponseEntity<>(categoryExpenses, HttpStatus.OK);
     }
 
